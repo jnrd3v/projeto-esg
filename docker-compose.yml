@@ -1,0 +1,39 @@
+services:
+  # Aplicação .NET
+  api:
+    build: .
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ProjetoESGDB;User Id=sa;Password=YourStrong!Passw0rd;TrustServerCertificate=true
+      - JwtSettings__SecretKey=minha-chave-super-secreta-para-jwt-com-32-caracteres-no-minimo
+      - JwtSettings__Issuer=ProjetoESG
+      - JwtSettings__Audience=ProjetoESG
+      - JwtSettings__ExpirationHours=24
+    depends_on:
+      - sqlserver
+    networks:
+      - esg-network
+
+  # Banco de Dados SQL Server
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+      - MSSQL_PID=Express
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - esg-network
+
+volumes:
+  sqlserver_data:
+
+networks:
+  esg-network:
+    driver: bridge 
